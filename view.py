@@ -104,8 +104,10 @@ class View:
                 break
 
             self.stdscr.refresh()
-            mod_mine_count = (self.board.number_of_mines % 10) + 1
-            flagged_squares = str(sum([1 for square in self.board.squares if square.is_flagged])).rjust(mod_mine_count)
-            self.stdscr.addstr(self.rows * 2 + 1, 0, f"{flagged_squares}/{self.board.number_of_mines}", curses.color_pair(View.COLOR_PAIR_NORMAL))
-            self.stdscr.addstr(self.rows * 2 + 2, 0, str(current_key), curses.color_pair(View.COLOR_PAIR_NORMAL))
+            mod_mine_count = (self.board.number_of_mines % 10)
+            flagged_squares = str(sum([1 for square in self.board.squares if square.is_flagged]))
+            self.stdscr.addstr(1, self.columns * 2 + 1,
+                               f"{flagged_squares}/{self.board.number_of_mines}".rjust(5),
+                               curses.color_pair(View.COLOR_PAIR_NORMAL))
+            self.stdscr.addstr(2, self.columns * 2 + 1, str(current_key), curses.color_pair(View.COLOR_PAIR_NORMAL))
             pass
