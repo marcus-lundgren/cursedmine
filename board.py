@@ -10,24 +10,18 @@ class Board:
         self.columns = columns
         self.rows = rows
         self.number_of_mines = number_of_mines
+        self.reset_needed = True
         self.reset()
 
     def reset(self):
+        self.reset_needed = True
         for square in self.squares:
             square.reset()
 
-        # Place the mines
-        placed_mines = 0
-        random.seed()
-        while placed_mines < self.number_of_mines:
-            x, y = random.randrange(0, self.columns), random.randrange(0, self.rows)
-            square = self.get_square(x, y)
-            if not square.is_mine:
-                square.set_as_mine()
-                placed_mines += 1
-                self.increase_neighbor_mines_counter(x, y)
-
     def sweep(self, x, y, is_empty_space_sweep: bool = False):
+        if self.reset_needed:
+            self._place_mines(x, y)
+
         square = self.get_square(x, y)
         if square is None or square.is_flagged:
             return
@@ -116,3 +110,18 @@ class Board:
                     square.sweep()
                     if square.mines_counter == 0:
                         self.sweep_empty_space(current_x, current_y)
+
+    def _place_mines(self, x: int, y: int):
+        self.reset_needed = False
+        placed_mines = 0
+        random.seed()
+        while placed_mines < self.number_of_mines:
+            current_x, current_y = random.randrange(0, self.columns), random.randrange(0, self.rows)
+            if (x - 1 <= current_x <= x + 1) and (y - 1 <= current_y <= y + 1):
+                continue
+
+            square = self.get_square(current_x, current_y)
+            if not square.is_mine:
+                square.set_as_mine()
+                placed_mines += 1
+                self.increase_neighbor_mines_counter(current_x, current_y)
