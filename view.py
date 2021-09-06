@@ -3,11 +3,28 @@ from board import Board
 
 
 class View:
+    COLOR_PAIR_NORMAL = 1
+    COLOR_PAIR_HIGHLIGHT = 2
+    COLOR_PAIR_UNSWEPT = 3
+    COLOR_PAIR_FLAGGED = 4
+    COLOR_PAIR_MINE = 5
+
     def __init__(self, stdscr: curses.window, rows: int, columns: int, board: Board):
         self.stdscr = stdscr
         self.columns = columns
         self.rows = rows
         self.board = board
+
+        self.stdscr.clear()
+
+        # Hide the cursor
+        curses.curs_set(0)
+
+        curses.init_pair(View.COLOR_PAIR_NORMAL, curses.COLOR_WHITE, curses.COLOR_BLACK)
+        curses.init_pair(View.COLOR_PAIR_HIGHLIGHT, curses.COLOR_BLACK, curses.COLOR_WHITE)
+        curses.init_pair(View.COLOR_PAIR_UNSWEPT, curses.COLOR_BLACK, curses.COLOR_MAGENTA)
+        curses.init_pair(View.COLOR_PAIR_FLAGGED, curses.COLOR_BLACK, curses.COLOR_YELLOW)
+        curses.init_pair(View.COLOR_PAIR_MINE, curses.COLOR_BLACK, curses.COLOR_RED)
 
     def reset_color_of_square(self, x: int, y: int):
         self.print_square(x, y, False)
@@ -22,17 +39,21 @@ class View:
 
     def print_square(self, x, y, highlight: bool = False):
         square = self.board.get_square(x, y)
-        square_value = "-"
+        square_value = " "
+        color_pair = View.COLOR_PAIR_HIGHLIGHT if highlight else View.COLOR_PAIR_UNSWEPT
         if square.is_flagged:
-            square_value = "^"
+            color_pair = View.COLOR_PAIR_HIGHLIGHT if highlight else View.COLOR_PAIR_FLAGGED
+            square_value = "+"
         elif square.is_swept:
+            color_pair = View.COLOR_PAIR_HIGHLIGHT if highlight else View.COLOR_PAIR_NORMAL
             if square.is_mine:
+                color_pair = View.COLOR_PAIR_MINE
                 square_value = "X"
             else:
                 mines_counter = square.mines_counter
                 square_value = str(mines_counter) if 0 < mines_counter else " "
 
-        self.stdscr.addstr(y * 2 + 1, x * 2 + 1, square_value, curses.color_pair(3 if highlight else 1))
+        self.stdscr.addstr(y * 2 + 1, x * 2 + 1, square_value, curses.color_pair(color_pair))
 
     def loop(self):
         self.print_squares()
