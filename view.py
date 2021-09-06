@@ -20,8 +20,8 @@ class View:
         # Hide the cursor
         curses.curs_set(0)
 
-        curses.init_pair(View.COLOR_PAIR_NORMAL, curses.COLOR_WHITE, curses.COLOR_BLACK)
-        curses.init_pair(View.COLOR_PAIR_HIGHLIGHT, curses.COLOR_BLACK, curses.COLOR_WHITE)
+        curses.init_pair(View.COLOR_PAIR_NORMAL, curses.COLOR_CYAN, curses.COLOR_BLACK)
+        curses.init_pair(View.COLOR_PAIR_HIGHLIGHT, curses.COLOR_BLACK, curses.COLOR_GREEN)
         curses.init_pair(View.COLOR_PAIR_UNSWEPT, curses.COLOR_BLACK, curses.COLOR_MAGENTA)
         curses.init_pair(View.COLOR_PAIR_FLAGGED, curses.COLOR_BLACK, curses.COLOR_YELLOW)
         curses.init_pair(View.COLOR_PAIR_MINE, curses.COLOR_BLACK, curses.COLOR_RED)
