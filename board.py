@@ -5,21 +5,35 @@ from square import Square
 
 
 class Board:
+    RESET = 0
+    KEEP_PLAYING = 1
+    WIN = 2
+    LOSS = 3
+
     def __init__(self, columns: int, rows: int, number_of_mines: int):
         self.squares = [Square() for _ in range(columns * rows)]
         self.columns = columns
         self.rows = rows
         self.number_of_mines = number_of_mines
-        self.reset_needed = True
+        self.current_state = Board.RESET
         self.reset()
 
+    def keep_playing(self) -> bool:
+        return self.current_state == Board.KEEP_PLAYING
+
+    def won(self) -> bool:
+        return self.current_state == Board.WIN
+
+    def lost(self) -> bool:
+        return self.current_state == Board.LOSS
+
     def reset(self):
-        self.reset_needed = True
+        self.current_state = Board.RESET
         for square in self.squares:
             square.reset()
 
     def sweep(self, x, y, is_empty_space_sweep: bool = False):
-        if self.reset_needed:
+        if self.current_state == Board.RESET:
             self._place_mines(x, y)
 
         square = self.get_square(x, y)
@@ -28,6 +42,8 @@ class Board:
 
         if not square.is_swept:
             square.sweep()
+            if square.is_mine:
+                self.current_state = Board.LOSS
 
             # We've encountered empty space. Sweep everything around us.
             if not square.is_mine and square.mines_counter == 0:
@@ -36,6 +52,10 @@ class Board:
             flagged_neighbors_count = self.count_flagged_neighbors(x, y)
             if flagged_neighbors_count == square.mines_counter:
                 self.sweep_neighbors(x, y)
+
+        if self.current_state != Board.LOSS:
+            if all((square.is_mine for square in self.squares if not square.is_swept)):
+                self.current_state = Board.WIN
 
     def flag(self, x, y):
         square = self.get_square(x, y)
@@ -108,11 +128,14 @@ class Board:
                 square = self.get_square(current_x, current_y)
                 if square is not None and not square.is_flagged:
                     square.sweep()
+                    if square.is_mine:
+                        self.current_state = Board.LOSS
+
                     if square.mines_counter == 0:
                         self.sweep_empty_space(current_x, current_y)
 
     def _place_mines(self, x: int, y: int):
-        self.reset_needed = False
+        self.current_state = Board.KEEP_PLAYING
         placed_mines = 0
         random.seed()
         while placed_mines < self.number_of_mines:

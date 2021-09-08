@@ -39,7 +39,7 @@ class View:
 
     def print_square(self, x, y, highlight: bool = False):
         square = self.board.get_square(x, y)
-        square_value = " "
+        square_value = "-"
         color_pair = View.COLOR_PAIR_HIGHLIGHT if highlight else View.COLOR_PAIR_UNSWEPT
         if square.is_flagged:
             color_pair = View.COLOR_PAIR_HIGHLIGHT if highlight else View.COLOR_PAIR_FLAGGED
@@ -53,10 +53,11 @@ class View:
                 mines_counter = square.mines_counter
                 square_value = str(mines_counter) if 0 < mines_counter else " "
 
-        self.stdscr.addstr(y * 2 + 1, x * 2 + 1, square_value, curses.color_pair(color_pair))
+        self.stdscr.addstr(y + 1, x + 1, square_value, curses.color_pair(color_pair))
 
     def loop(self):
         self.print_squares()
+        outcome_text = "      "
         current_x, current_y = 0, 0
 
         while True:
@@ -91,23 +92,31 @@ class View:
                 self.highlight_square(current_x, current_y)
             elif current_key == 102:
                 self.board.flag(current_x, current_y)
-                self.print_square(current_x, current_y)
+                self.highlight_square(current_x, current_y)
             elif current_key == 114:
                 self.board.reset()
+                outcome_text = "      "
                 self.print_squares()
                 self.highlight_square(current_x, current_y)
             elif current_key == 115:
                 self.board.sweep(current_x, current_y)
                 self.print_squares()
                 self.highlight_square(current_x, current_y)
+
+                # Check if we reached an end state
+                if not self.board.keep_playing():
+                    if self.board.lost():
+                        outcome_text = "LOSS"
+                    elif self.board.won():
+                        outcome_text = "WON!"
             elif current_key == 113:
                 break
 
             self.stdscr.refresh()
-            mod_mine_count = (self.board.number_of_mines % 10)
             flagged_squares = str(sum([1 for square in self.board.squares if square.is_flagged]))
-            self.stdscr.addstr(1, self.columns * 2 + 1,
+            self.stdscr.addstr(1, self.columns + 2,
                                f"{flagged_squares}/{self.board.number_of_mines}".rjust(5),
                                curses.color_pair(View.COLOR_PAIR_NORMAL))
-            self.stdscr.addstr(2, self.columns * 2 + 1, str(current_key), curses.color_pair(View.COLOR_PAIR_NORMAL))
+            self.stdscr.addstr(2, self.columns + 2, outcome_text, curses.color_pair(View.COLOR_PAIR_NORMAL))
+            self.stdscr.addstr(3, self.columns + 2, str(current_key), curses.color_pair(View.COLOR_PAIR_NORMAL))
             pass
