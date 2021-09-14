@@ -4,6 +4,7 @@ class Square:
         self.mines_counter = 0
         self.is_swept = False
         self.is_flagged = False
+        self.neighbors: List[Square] = []
 
     def reset(self):
         self.is_swept = False

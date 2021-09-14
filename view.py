@@ -99,7 +99,7 @@ class View:
                 self.print_squares()
                 self.highlight_square(current_x, current_y)
             elif current_key == 115:
-                self.board.sweep(current_x, current_y)
+                self.board.sweep_by_index(current_x, current_y)
                 self.print_squares()
                 self.highlight_square(current_x, current_y)
 
