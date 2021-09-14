@@ -90,7 +90,7 @@ class View:
                 self.reset_color_of_square(current_x, current_y)
                 current_y += 1
                 self.highlight_square(current_x, current_y)
-            elif current_key == 102:
+            elif current_key == 102 and self.board.keep_playing():
                 self.board.flag(current_x, current_y)
                 self.highlight_square(current_x, current_y)
             elif current_key == 114:
@@ -98,7 +98,7 @@ class View:
                 outcome_text = "      "
                 self.print_squares()
                 self.highlight_square(current_x, current_y)
-            elif current_key == 115:
+            elif current_key == 115 and self.board.keep_playing():
                 self.board.sweep_by_index(current_x, current_y)
                 self.print_squares()
                 self.highlight_square(current_x, current_y)
